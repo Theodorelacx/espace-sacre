@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Sacré | Plateforme de Partage</title>
+    <title>Espace Sacré | Plateforme Familiale</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- BIBLIOTHÈQUE SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <!-- ECRAN DE CONNEXION -->
     <div id="login-screen" class="glass-container">
         <div class="auth-card">
             <h1>Bienvenue ✨</h1>
@@ -29,7 +30,6 @@
         </div>
     </div>
 
-    <!-- APPLICATION PRINCIPALE -->
     <div id="main-app" style="display:none;">
         <nav class="navbar">
             <span class="logo" onclick="changerOnglet('wall')">🙏 Notre Espace</span>
@@ -37,7 +37,6 @@
         </nav>
 
         <main class="content">
-            <!-- PUBLICATION (Uniquement sur le Mur) -->
             <section id="publish-area" class="publish-box">
                 <textarea id="post-content" placeholder="Que voulez-vous partager ?"></textarea>
                 <div class="publish-controls">
@@ -52,21 +51,18 @@
                 <button onclick="ajouterPost()" class="btn-primary">Publier pour la famille</button>
             </section>
 
-            <!-- NAVIGATION -->
             <div class="tabs">
                 <button onclick="changerOnglet('wall')" id="btn-wall" class="tab active">Le Mur</button>
                 <button onclick="changerOnglet('profile')" id="btn-profile" class="tab">Les Profils</button>
             </div>
 
-            <!-- SECTION MUR -->
             <div id="wall-section" class="feed"></div>
 
-            <!-- SECTION PROFILS -->
             <div id="profile-section" style="display:none;">
                 <div class="avatar-config">
                     <h3>Ma Photo de Profil</h3>
                     <div class="publish-controls">
-                        <input type="text" id="avatar-url" placeholder="Collez le lien de votre photo ici...">
+                        <input type="text" id="avatar-url" placeholder="Lien de votre photo...">
                         <button onclick="mettreAJourAvatar()" class="btn-primary" style="margin:0">Sauvegarder</button>
                     </div>
                 </div>
