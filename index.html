@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Sacré | Plateforme de Partage</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ECRAN DE CONNEXION -->
+    <div id="login-screen" class="glass-container">
+        <div class="auth-card">
+            <h1>Bienvenue ✨</h1>
+            <div class="input-group">
+                <label>Membre de la famille</label>
+                <select id="user-select">
+                    <option value="Bethsabée">Bethsabée</option>
+                    <option value="Lucile">Lucile</option>
+                    <option value="Théodore">Théodore</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Mot de passe</label>
+                <input type="password" id="password-input" placeholder="Votre mot de passe...">
+            </div>
+            <button onclick="validerConnexion()" class="btn-primary">Se connecter</button>
+        </div>
+    </div>
+
+    <!-- APPLICATION PRINCIPALE -->
+    <div id="main-app" style="display:none;">
+        <nav class="navbar">
+            <span class="logo" onclick="changerOnglet('wall')">🙏 Notre Espace</span>
+            <button onclick="deconnexion()" class="btn-outline">Déconnexion</button>
+        </nav>
+
+        <main class="content">
+            <!-- PUBLICATION (Uniquement sur le Mur) -->
+            <section id="publish-area" class="publish-box">
+                <textarea id="post-content" placeholder="Que voulez-vous partager ?"></textarea>
+                <div class="publish-controls">
+                    <select id="post-type">
+                        <option value="text">📖 Prière / Texte</option>
+                        <option value="image">🖼️ Image (Lien)</option>
+                        <option value="video">🎥 Vidéo (Lien)</option>
+                        <option value="audio">🎵 Musique (Lien)</option>
+                    </select>
+                    <input type="text" id="post-link" placeholder="Lien vers le média...">
+                </div>
+                <button onclick="ajouterPost()" class="btn-primary">Publier pour la famille</button>
+            </section>
+
+            <!-- NAVIGATION -->
+            <div class="tabs">
+                <button onclick="changerOnglet('wall')" id="btn-wall" class="tab active">Le Mur</button>
+                <button onclick="changerOnglet('profile')" id="btn-profile" class="tab">Les Profils</button>
+            </div>
+
+            <!-- SECTION MUR -->
+            <div id="wall-section" class="feed"></div>
+
+            <!-- SECTION PROFILS -->
+            <div id="profile-section" style="display:none;">
+                <div class="avatar-config">
+                    <h3>Ma Photo de Profil</h3>
+                    <div class="publish-controls">
+                        <input type="text" id="avatar-url" placeholder="Collez le lien de votre photo ici...">
+                        <button onclick="mettreAJourAvatar()" class="btn-primary" style="margin:0">Sauvegarder</button>
+                    </div>
+                </div>
+
+                <div class="profile-nav">
+                    <label>Voir le profil de :</label>
+                    <select id="view-profile-user" onchange="afficherProfil()">
+                        <option value="Bethsabée">Bethsabée</option>
+                        <option value="Lucile">Lucile</option>
+                        <option value="Théodore">Théodore</option>
+                    </select>
+                </div>
+                
+                <div class="profile-grid">
+                    <div class="category"><h3>📖 Prières</h3><div id="cat-text" class="cat-list"></div></div>
+                    <div class="category"><h3>🖼️ Images</h3><div id="cat-image" class="cat-list"></div></div>
+                    <div class="category"><h3>🎥 Vidéos</h3><div id="cat-video" class="cat-list"></div></div>
+                    <div class="category"><h3>🎵 Musiques</h3><div id="cat-audio" class="cat-list"></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
