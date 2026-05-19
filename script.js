@@ -1,5 +1,5 @@
 // --- CONFIGURATION SUPABASE ---
-const SUPABASE_URL = 'https://gpbcxnrayfypglhltqyk.supabase.co';
+const SUPABASE_URL = 'https://gpbcxnrayfypglhltqyk.supabase.co'; // Ton URL
 const SUPABASE_KEY = 'sb_publishable_cbvOOJLBAwleThiX8gLySA_JpflHHjw';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -22,7 +22,7 @@ async function chargerProfils() {
 }
 
 async function chargerPosts() {
-    const { data } = await _supabase.from('posts').select('*').order('id', { ascending: false });
+    const { data } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
     if (data) {
         posts = data;
         afficherMur();
@@ -52,19 +52,24 @@ async function ajouterPost() {
 
     if (!text && !link) return;
 
-    const { error } = await _supabase.from('posts').insert([{
-        author: currentUser,
-        text: text,
-        media: link,
-        type: type,
-        likes: [],
-        comments: []
-    }]);
+    // Ajout d'un paramètre pour empêcher Supabase de forcer le retour des colonnes
+    const { error } = await _supabase.from('posts').insert([
+        {
+            author: currentUser,
+            text: text,
+            media: link,
+            type: type,
+            likes: [],
+            comments: []
+        }
+    ], { returning: 'minimal' }); // 👈 Bloque le bug de l'URL ?columns=
 
     if (!error) {
         document.getElementById('post-content').value = "";
         document.getElementById('post-link').value = "";
         chargerPosts();
+    } else {
+        console.error("Erreur d'insertion :", error.message);
     }
 }
 
@@ -77,7 +82,9 @@ async function supprimerPost(postId) {
 
 async function toggleLike(postId) {
     const post = posts.find(p => p.id === postId);
-    let newLikes = [...post.likes];
+    if (!post) return;
+    
+    let newLikes = [...(post.likes || [])];
     const index = newLikes.indexOf(currentUser);
     index > -1 ? newLikes.splice(index, 1) : newLikes.push(currentUser);
 
@@ -89,7 +96,9 @@ async function ajouterCommentaire(postId) {
     const msg = prompt("Votre commentaire :");
     if (!msg) return;
     const post = posts.find(p => p.id === postId);
-    const newComments = [...post.comments, { user: currentUser, text: msg }];
+    if (!post) return;
+    
+    const newComments = [...(post.comments || []), { user: currentUser, text: msg }];
 
     await _supabase.from('posts').update({ comments: newComments }).eq('id', postId);
     chargerPosts();
@@ -104,9 +113,13 @@ async function mettreAJourAvatar() {
 
 // --- AFFICHAGE ---
 function renderPost(p) {
-    const hasLiked = p.likes.includes(currentUser);
+    const likesArray = p.likes || [];
+    const commentsArray = p.comments || [];
+    const hasLiked = likesArray.includes(currentUser);
     const avatar = userProfiles[p.author] || `https://ui-avatars.com/api/?name=${p.author}`;
-    const deleteBtn = (p.author === currentUser) ? `<button class="btn-delete" onclick="supprimerPost(${p.id})">🗑️</button>` : "";
+    
+    // 👈 Ajout de guillemets '${p.id}' ici car l'ID est un texte UUID, pas un chiffre
+    const deleteBtn = (p.author === currentUser) ? `<button class="btn-delete" onclick="supprimerPost('${p.id}')">🗑️</button>` : "";
 
     let mediaHtml = "";
     if (p.media) {
@@ -123,10 +136,10 @@ function renderPost(p) {
             </div>
             <div class="post-body"><p>${p.text}</p>${mediaHtml}</div>
             <div class="post-footer">
-                <button class="btn-action ${hasLiked ? 'liked' : ''}" onclick="toggleLike(${p.id})">❤️ ${p.likes.length}</button>
-                <button class="btn-action" onclick="ajouterCommentaire(${p.id})">💬 ${p.comments.length}</button>
+                <button class="btn-action ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">❤️ ${likesArray.length}</button>
+                <button class="btn-action" onclick="ajouterCommentaire('${p.id}')">💬 ${commentsArray.length}</button>
             </div>
-            <div class="comments-list">${p.comments.map(c => `<div class="comment-item"><b>${c.user}:</b> ${c.text}</div>`).join('')}</div>
+            <div class="comments-list">${commentsArray.map(c => `<div class="comment-item"><b>${c.user}:</b> ${c.text}</div>`).join('')}</div>
         </div>`;
 }
 
