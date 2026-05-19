@@ -46,14 +46,20 @@ function validerConnexion() {
 
 // --- ACTIONS BASE DE DONNÉES ---
 
-// 📥 NOUVELLE FONCTION : Envoie le fichier physique sur Supabase Storage
+// 📥 FONCTION CORRIGÉE : Envoie le fichier physique sur Supabase Storage sans accent
 async function uploaderFichier(file) {
     if (!file) return null;
     
-    // Génère un nom de fichier unique pour éviter les doublons (ex: 1715200000_photo.jpg)
+    // Nettoyage du nom d'utilisateur pour enlever les accents (ex: Théodore -> Theodore)
+    const safeFolderName = currentUser
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "");
+
+    // Génère un nom de fichier unique
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `${currentUser}/${fileName}`;
+    const filePath = `${safeFolderName}/${fileName}`;
 
     // Envoi dans le bucket "medias"
     const { data, error } = await _supabase.storage
@@ -62,7 +68,7 @@ async function uploaderFichier(file) {
 
     if (error) {
         console.error("Erreur d'upload :", error.message);
-        alert("Échec de l'envoi de l'image.");
+        alert("Échec de l'envoi de l'image : " + error.message);
         return null;
     }
 
