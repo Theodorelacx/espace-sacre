@@ -45,28 +45,66 @@ function validerConnexion() {
 }
 
 // --- ACTIONS BASE DE DONNÉES ---
+
+// 📥 NOUVELLE FONCTION : Envoie le fichier physique sur Supabase Storage
+async function uploaderFichier(file) {
+    if (!file) return null;
+    
+    // Génère un nom de fichier unique pour éviter les doublons (ex: 1715200000_photo.jpg)
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `${currentUser}/${fileName}`;
+
+    // Envoi dans le bucket "medias"
+    const { data, error } = await _supabase.storage
+        .from('medias')
+        .upload(filePath, file);
+
+    if (error) {
+        console.error("Erreur d'upload :", error.message);
+        alert("Échec de l'envoi de l'image.");
+        return null;
+    }
+
+    // Récupère l'URL publique de l'image stockée
+    const { data: publicUrlData } = _supabase.storage
+        .from('medias')
+        .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+}
+
 async function ajouterPost() {
     const text = document.getElementById('post-content').value;
-    const link = document.getElementById('post-link').value;
     const type = document.getElementById('post-type').value;
+    
+    // On va chercher le fichier sélectionné dans l'ordinateur/téléphone
+    const fileInput = document.getElementById('post-file'); 
+    const file = fileInput ? fileInput.files[0] : null;
 
-    if (!text && !link) return;
+    if (!text && !file) return;
 
-    // Ajout d'un paramètre pour empêcher Supabase de forcer le retour des colonnes
+    let mediaUrl = "";
+
+    // Si l'utilisateur a mis un fichier, on l'envoie d'abord sur le stockage Supabase
+    if (file) {
+        mediaUrl = await uploaderFichier(file);
+    }
+
     const { error } = await _supabase.from('posts').insert([
         {
             author: currentUser,
             text: text,
-            media: link,
-            type: type,
+            media: mediaUrl, // Sera l'URL de la vraie image stockée chez Supabase !
+            type: file ? 'image' : type, // Force le type image si un fichier est présent
             likes: [],
             comments: []
         }
-    ], { returning: 'minimal' }); // 👈 Bloque le bug de l'URL ?columns=
+    ], { returning: 'minimal' });
 
     if (!error) {
         document.getElementById('post-content').value = "";
-        document.getElementById('post-link').value = "";
+        if (fileInput) fileInput.value = ""; // Vide le choix du fichier
         chargerPosts();
     } else {
         console.error("Erreur d'insertion :", error.message);
@@ -118,7 +156,6 @@ function renderPost(p) {
     const hasLiked = likesArray.includes(currentUser);
     const avatar = userProfiles[p.author] || `https://ui-avatars.com/api/?name=${p.author}`;
     
-    // 👈 Ajout de guillemets '${p.id}' ici car l'ID est un texte UUID, pas un chiffre
     const deleteBtn = (p.author === currentUser) ? `<button class="btn-delete" onclick="supprimerPost('${p.id}')">🗑️</button>` : "";
 
     let mediaHtml = "";
