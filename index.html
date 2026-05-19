@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Sacré | Plateforme Familiale</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- BIBLIOTHÈQUE SUPABASE -->
+    <link href="https://fonts.googleapis.com/css2=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -42,11 +41,12 @@
                 <div class="publish-controls">
                     <select id="post-type">
                         <option value="text">📖 Prière / Texte</option>
-                        <option value="image">🖼️ Image (Lien)</option>
+                        <option value="image">🖼️ Image (Fichier)</option>
                         <option value="video">🎥 Vidéo (Lien)</option>
                         <option value="audio">🎵 Musique (Lien)</option>
                     </select>
-                    <input type="text" id="post-link" placeholder="Lien vers le média...">
+                    
+                    <input type="file" id="post-file" accept="image/*" style="font-size: 0.85rem; color: #cbd5e1; cursor: pointer;">
                 </div>
                 <button onclick="ajouterPost()" class="btn-primary">Publier pour la famille</button>
             </section>
